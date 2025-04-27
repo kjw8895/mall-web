@@ -1,0 +1,68 @@
+:root {
+  --main-bg: #2d014d;
+  --main-bg-gradient: linear-gradient(90deg, #2d014d 0%, #3a006a 100%);
+  --main-purple: #6c2bd7;
+  --main-purple-light: #a98bfa;
+  --main-purple-dark: #2d014d;
+  --main-white: #fff;
+  --main-gray: #f8f9fa;
+  --main-text: #f5eaff;
+  --main-title: #ffe6fa;
+  --main-btn: #6c2bd7;
+  --main-btn-hover: #4b1a9a;
+  --main-border: #e0d7f7;
+  --main-shadow: 0 4px 24px 0 rgba(44, 0, 80, 0.12);
+  --main-radius: 16px;
+  --main-font: 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', Arial, sans-serif;
+}
+
+body {
+  background: var(--main-bg-gradient);
+  color: var(--main-text);
+  font-family: var(--main-font);
+  margin: 0;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--main-purple-light);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: var(--main-font);
+  border: none;
+  border-radius: var(--main-radius);
+  background: var(--main-btn);
+  color: var(--main-white);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:hover {
+  background: var(--main-btn-hover);
+}
+
+input, select, textarea {
+  font-family: var(--main-font);
+  border-radius: 8px;
+  border: 1px solid var(--main-border);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  background: var(--main-white);
+  color: #222;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: var(--main-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--main-purple);
+  border-radius: 8px;
+} 

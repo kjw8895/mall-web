@@ -5,12 +5,53 @@ const routes = [
   {
     path: '/',
     component: () => import('@/layouts/DefaultLayout.vue'),
+    meta: { requiresAuth: true },
     children: [
       {
         path: '',
         name: 'Home',
         component: () => import('@/views/Home.vue'),
       },
+      {
+        path: 'products',
+        children: [
+          {
+            path: 'list',
+            name: 'ProductList',
+            component: () => import('@/views/products/ProductList.vue'),
+          },
+          {
+            path: 'create',
+            name: 'ProductCreate',
+            component: () => import('@/views/products/ProductCreate.vue'),
+          },
+          {
+            path: ':id',
+            name: 'ProductDetail',
+            component: () => import('@/views/products/ProductDetail.vue'),
+          }
+        ]
+      },
+      {
+        path: 'account',
+        children: [
+          {
+            path: 'selling',
+            name: 'SellingList',
+            component: () => import('@/views/account/SellingList.vue'),
+          },
+          {
+            path: 'buying',
+            name: 'BuyingList',
+            component: () => import('@/views/account/BuyingList.vue'),
+          },
+          {
+            path: 'trade',
+            name: 'TradeList',
+            component: () => import('@/views/account/TradeList.vue'),
+          }
+        ]
+      }
     ],
   },
   {
@@ -39,11 +80,13 @@ const router = createRouter({
 // Navigation guard
 router.beforeEach((to, from, next) => {
   const isAuthenticated = store.getters['auth/isAuthenticated'];
-  const publicPages = ['/auth/login', '/auth/signup'];
-  const authRequired = !publicPages.includes(to.path);
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
-  if (authRequired && !isAuthenticated) {
+  if (requiresAuth && !isAuthenticated) {
     next('/auth/login');
+  } else if (isAuthenticated && to.path.startsWith('/auth/')) {
+    // 이미 로그인된 사용자가 로그인/회원가입 페이지에 접근하면 홈으로 리다이렉트
+    next('/');
   } else {
     next();
   }

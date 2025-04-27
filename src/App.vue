@@ -1,5 +1,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
+import './assets/theme.css';
 
 export default defineComponent({
   name: 'App',
@@ -7,7 +8,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <router-view></router-view>
+  <router-view />
 </template>
 
 <style>

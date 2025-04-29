@@ -1,237 +1,226 @@
 <template>
   <div class="buying-list">
     <h1>내 구매 목록</h1>
-    
-    <div class="status-tabs">
-      <button 
-        v-for="status in statusOptions" 
-        :key="status.value"
-        :class="['status-tab', { active: currentStatus === status.value }]"
-        @click="currentStatus = status.value"
-      >
-        {{ status.label }}
-      </button>
-    </div>
-    
     <div class="products-table">
       <table>
         <thead>
           <tr>
-            <th>상품 이미지</th>
             <th>상품명</th>
-            <th>가격</th>
-            <th>구매일</th>
+            <th>입찰가</th>
+            <th>입찰일</th>
             <th>상태</th>
-            <th>판매자</th>
+            <th>관리</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="product in filteredProducts" :key="product.id">
-            <td class="product-image-cell">
-              <img :src="product.image" :alt="product.name" class="product-thumbnail" />
-            </td>
-            <td>{{ product.name }}</td>
-            <td>{{ formatPrice(product.price) }}원</td>
-            <td>{{ formatDate(product.purchasedAt) }}</td>
+          <tr v-for="purchase in purchases" :key="purchase.id">
             <td>
-              <span :class="['status-badge', product.status]">
-                {{ getStatusLabel(product.status) }}
+              <span class="product-link" @click="goToProduct(purchase.productId)">
+                {{ purchase.productName || purchase.productId }}
               </span>
             </td>
-            <td>{{ product.seller }}</td>
-          </tr>
-          <tr v-if="filteredProducts.length === 0">
-            <td colspan="6" class="empty-message">
-              구매한 상품이 없습니다.
+            <td>{{ formatPrice(purchase.price) }}원</td>
+            <td>{{ formatDate(purchase.createdDatetime) }}</td>
+            <td>
+              <span :class="['status-badge', purchase.status]">
+                {{ purchase.status }}
+              </span>
             </td>
+            <td class="action-cell">
+              <button class="action-btn view" @click="goToProduct(purchase.productId)">상세보기</button>
+              <button class="action-btn cancel" @click="cancelBid(purchase.id)" :disabled="cancelLoadingId === purchase.id">입찰 취소</button>
+            </td>
+          </tr>
+          <tr v-if="purchases.length === 0">
+            <td colspan="5" class="empty-message">구매(입찰) 내역이 없습니다.</td>
           </tr>
         </tbody>
       </table>
+      <div class="pagination" v-if="totalPages > 0">
+        <button class="page-btn" :disabled="currentPage === 0" @click="changePage(currentPage - 1)">이전</button>
+        <span class="page-info">{{ currentPage + 1 }} / {{ totalPages }}</span>
+        <button class="page-btn" :disabled="currentPage === totalPages - 1" @click="changePage(currentPage + 1)">다음</button>
+      </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import axios from '@/plugins/axios';
+import { useRouter } from 'vue-router';
 
-export default defineComponent({
-  name: 'BuyingList',
-  setup() {
-    const currentStatus = ref('all');
-    
-    const statusOptions = [
-      { value: 'all', label: '전체' },
-      { value: 'completed', label: '구매완료' },
-      { value: 'shipping', label: '배송중' },
-      { value: 'delivered', label: '배송완료' }
-    ];
-    
-    // 샘플 상품 데이터
-    const products = ref([
-      {
-        id: 1,
-        name: '아이폰 12 Pro',
-        price: 800000,
-        image: 'https://via.placeholder.com/50',
-        purchasedAt: '2023-04-15',
-        status: 'completed',
-        seller: 'user123'
-      },
-      {
-        id: 2,
-        name: '나이키 운동화',
-        price: 120000,
-        image: 'https://via.placeholder.com/50',
-        purchasedAt: '2023-04-10',
-        status: 'shipping',
-        seller: 'seller456'
-      },
-      {
-        id: 3,
-        name: '해리포터 시리즈',
-        price: 50000,
-        image: 'https://via.placeholder.com/50',
-        purchasedAt: '2023-04-05',
-        status: 'delivered',
-        seller: 'bookstore789'
+const purchases = ref<any[]>([]);
+const currentPage = ref(0);
+const totalPages = ref(0);
+const pageSize = ref(20);
+const loading = ref(false);
+const cancelLoadingId = ref<number | null>(null);
+const router = useRouter();
+
+async function fetchPurchases() {
+  try {
+    loading.value = true;
+    const response = await axios.get('/product/my-purchase', {
+      params: {
+        page: currentPage.value,
+        size: pageSize.value
       }
-    ]);
-    
-    // 현재 상태에 따라 상품 필터링
-    const filteredProducts = computed(() => {
-      if (currentStatus.value === 'all') {
-        return products.value;
-      }
-      return products.value.filter(product => product.status === currentStatus.value);
     });
-    
-    // 가격 포맷팅 함수
-    const formatPrice = (price: number) => {
-      return price.toLocaleString();
-    };
-    
-    // 날짜 포맷팅 함수
-    const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    };
-    
-    // 상태 레이블 가져오기
-    const getStatusLabel = (status: string) => {
-      const option = statusOptions.find(opt => opt.value === status);
-      return option ? option.label : status;
-    };
-    
-    return {
-      currentStatus,
-      statusOptions,
-      products,
-      filteredProducts,
-      formatPrice,
-      formatDate,
-      getStatusLabel
-    };
+    const { content, totalPages: total } = response.data.data;
+    purchases.value = content;
+    totalPages.value = total;
+  } catch (error) {
+    console.error('내 구매 목록을 불러오는데 실패했습니다:', error);
+  } finally {
+    loading.value = false;
   }
-});
+}
+
+function formatPrice(price: number) {
+  return price?.toLocaleString();
+}
+function formatDate(dateString: string) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+function goToProduct(productId: number) {
+  router.push(`/products/${productId}`);
+}
+function changePage(page: number) {
+  currentPage.value = page;
+  fetchPurchases();
+}
+async function cancelBid(purchaseId: number) {
+  if (!confirm('정말로 이 입찰을 취소하시겠습니까?')) return;
+  cancelLoadingId.value = purchaseId;
+  try {
+    await axios.delete(`/product/purchase/${purchaseId}`);
+    fetchPurchases();
+  } catch (err) {
+    alert('입찰 취소에 실패했습니다.');
+  } finally {
+    cancelLoadingId.value = null;
+  }
+}
+
+onMounted(fetchPurchases);
 </script>
 
 <style scoped>
 .buying-list {
-  padding: 20px;
+  padding: 32px 24px 24px 24px;
 }
 
-.status-tabs {
-  display: flex;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #ddd;
+h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 2rem;
 }
-
-.status-tab {
-  padding: 10px 15px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-  color: #7f8c8d;
-  position: relative;
-}
-
-.status-tab.active {
-  color: #3498db;
-  font-weight: 500;
-}
-
-.status-tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: #3498db;
-}
-
 .products-table {
   background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(44,0,80,0.06);
   overflow: hidden;
+  margin-top: 10px;
 }
-
 table {
   width: 100%;
   border-collapse: collapse;
 }
-
 th, td {
-  padding: 15px;
+  padding: 16px 12px;
   text-align: left;
   border-bottom: 1px solid #eee;
+  font-size: 1rem;
 }
-
 th {
   background-color: #f8f9fa;
-  font-weight: 600;
+  font-weight: 700;
   color: #2c3e50;
 }
-
-.product-image-cell {
-  width: 80px;
+.action-cell {
+  display: flex;
+  gap: 8px;
 }
-
-.product-thumbnail {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 4px;
+.action-btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
 }
-
+.action-btn.view {
+  background-color: #5b7cfa;
+  color: white;
+}
+.action-btn.view:hover {
+  background-color: #3b5ed6;
+}
+.action-btn.cancel {
+  background-color: #e74c3c;
+  color: white;
+}
+.action-btn.cancel:hover {
+  background-color: #c0392b;
+}
 .status-badge {
   display: inline-block;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
-
-.status-badge.completed {
+.status-badge.OPEN {
   background-color: #e1f7e1;
   color: #2ecc71;
 }
-
-.status-badge.shipping {
-  background-color: #fff3e0;
-  color: #f39c12;
-}
-
-.status-badge.delivered {
+.status-badge.DONE {
   background-color: #f8f9fa;
   color: #7f8c8d;
 }
-
+.status-badge.RESERVED {
+  background-color: #fff3e0;
+  color: #f39c12;
+}
 .empty-message {
   text-align: center;
   color: #7f8c8d;
   padding: 30px;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 24px;
+}
+.page-btn {
+  padding: 8px 18px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.page-info {
+  font-size: 1rem;
+  color: #7f8c8d;
+}
+.product-link {
+  color: #5b7cfa;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.product-link:hover {
+  color: #2d014d;
 }
 </style> 

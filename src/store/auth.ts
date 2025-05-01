@@ -6,6 +6,7 @@ interface AuthState {
   user: {
     email: string;
     name: string;
+    userId: number;
   } | null;
   loading: boolean;
   error: string | null;
@@ -16,7 +17,7 @@ const auth: Module<AuthState, any> = {
   
   state: () => ({
     token: localStorage.getItem('token'),
-    user: null,
+    user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null,
     loading: false,
     error: null,
   }),
@@ -26,8 +27,9 @@ const auth: Module<AuthState, any> = {
       state.token = token;
       localStorage.setItem('token', token);
     },
-    SET_USER(state, user: { email: string; nickName: string; }) {
+    SET_USER(state, user: { email: string; nickName: string; userId: number; }) {
       state.user = user;
+      localStorage.setItem('user', JSON.stringify(user));
     },
     SET_LOADING(state, loading: boolean) {
       state.loading = loading;
@@ -36,11 +38,9 @@ const auth: Module<AuthState, any> = {
       state.error = error;
     },
     CLEAR_AUTH(state) {
-      console.log('Clearing auth data');
       state.token = null;
       state.user = null;
       localStorage.removeItem('token');
-      console.log('Token removed from localStorage');
     },
   },
 
@@ -52,7 +52,6 @@ const auth: Module<AuthState, any> = {
         commit('SET_ERROR', null);
         const response = await authApi.login(credentials);
         const token = response.data.data.accessToken;
-        console.log('Login response token:', token);
 
         if (!token) {
           throw new Error('No token received from server');
@@ -63,7 +62,7 @@ const auth: Module<AuthState, any> = {
         // 사용자 정보는 토큰에서 추출하거나 별도 API로 가져올 수 있습니다
         // 여기서는 간단히 이메일만 저장합니다
         const email = credentials.email;
-        commit('SET_USER', { email, nickName: response.data.data.nickName });
+        commit('SET_USER', { email: email, nickName: response.data.data.nickName, userId:response.data.data.userId });
         
         return response.data;
       } catch (error: any) {
@@ -93,7 +92,6 @@ const auth: Module<AuthState, any> = {
     },
 
     logout({ commit }) {
-      console.log('Logout action called');
       commit('CLEAR_AUTH');
     },
   },
@@ -101,7 +99,6 @@ const auth: Module<AuthState, any> = {
   getters: {
     isAuthenticated: (state) => {
       const isAuth = !!state.token;
-      console.log('isAuthenticated check:', isAuth);
       return isAuth;
     },
     currentUser: (state) => state.user,

@@ -90,7 +90,7 @@ export default defineComponent({
         loading.value = true;
         const response = await axios.get('/product/page', {
           params: {
-            type: 'NORMAL',
+            type: 'AUCTION',
             productName: searchQuery.value || undefined,
             page: currentPage.value,
             size: pageSize.value
@@ -117,7 +117,7 @@ export default defineComponent({
     };
 
     const viewProduct = (productId: number) => {
-      router.push(`/products/${productId}`);
+      router.push(`/auction/${productId}`);
     };
 
     onMounted(() => {

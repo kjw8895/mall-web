@@ -33,6 +33,21 @@ const routes = [
         ]
       },
       {
+        path: 'auction',
+        children: [
+          {
+            path: 'list',
+            name: 'AuctionList',
+            component: () => import('@/views/auction/ProductList.vue'),
+          },
+          {
+            path: ':id',
+            name: 'AuctionDetail',
+            component: () => import('@/views/auction/ProductDetail.vue'),
+          }
+        ]
+      },
+      {
         path: 'account',
         children: [
           {

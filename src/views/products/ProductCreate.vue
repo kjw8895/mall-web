@@ -7,6 +7,15 @@
         <input v-model="name" required placeholder="상품명을 입력하세요" />
       </div>
       <div class="form-group">
+        <label>상품타입</label>
+        <div>
+          <label>
+            <input type="radio" value="NORMAL" v-model="type"/> 일반
+            <input type="radio" value="AUCTION" v-model="type"/> 경매
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
         <label>가격</label>
         <input v-model.number="price" type="number" required placeholder="가격을 입력하세요" />
       </div>
@@ -28,6 +37,7 @@ import axios from '@/api/axios'
 const emit = defineEmits(['close', 'registered']);
 
 const name = ref('');
+const type = ref('NORMAL');
 const price = ref<number | null>(null);
 const file = ref<File | null>(null);
 const loading = ref(false);
@@ -47,7 +57,7 @@ async function handleSubmit() {
   error.value = '';
   try {
     const formData = new FormData();
-    const dto = { name: name.value, price: price.value };
+    const dto = { name: name.value, price: price.value, type: type.value };
     formData.append('request', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
     formData.append('file', file.value);
     await axios.post('/product', formData, {

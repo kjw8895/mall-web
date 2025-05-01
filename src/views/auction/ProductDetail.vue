@@ -12,7 +12,43 @@
         <div class="product-detail-seller">
           판매자: {{ product.user?.nickName || product.user?.email || '-' }}
         </div>
-        <button v-if="!isMyProduct" class="bid-btn" @click="showBidModal = true">구매하기</button>
+        <button v-if="!isMyProduct" class="bid-btn" @click="showBidModal = true">입찰하기</button>
+      </div>
+    </div>
+    <div class="bid-list-section">
+      <h2 class="bid-list-title">입찰 목록</h2>
+      <table class="bid-list-table">
+        <thead>
+          <tr>
+            <th>입찰자</th>
+            <th>입찰가</th>
+            <th>입찰일</th>
+            <th>상태</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="bid in bidList" :key="bid.id">
+            <td>{{ bid.user?.nickName || bid.user?.name || bid.user?.email || '-' }}</td>
+            <td>{{ formatPrice(bid.price) }}원</td>
+            <td>{{ formatDate(bid.createdDatetime) }}</td>
+            <td>{{ bid.status }}</td>
+          </tr>
+          <tr v-if="bidList.length === 0">
+            <td colspan="4" class="empty-message">입찰 내역이 없습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div v-if="showBidModal" class="modal">
+      <div class="modal-content">
+        <h3>입찰가 입력</h3>
+        <div class="my-point">보유 포인트: <b>{{ formatPrice(point) }}P</b></div>
+        <input type="number" v-model.number="bidPrice" placeholder="입찰가를 입력하세요" class="bid-input" />
+        <div v-if="bidError" class="bid-error">{{ bidError }}</div>
+        <div class="modal-actions">
+          <button class="modal-btn" @click="submitBid" :disabled="bidLoading">입찰</button>
+          <button class="modal-btn cancel" @click="closeBidModal">취소</button>
+        </div>
       </div>
     </div>
   </div>
@@ -38,7 +74,7 @@ const bidError = ref('');
 
 const currentUser = computed(() => store.getters['auth/currentUser']);
 const isMyProduct = computed(() => {
-  return product.value && currentUser && product.value.user?.id === currentUser.value?.userId;
+  return product.value && currentUser.value && product.value.user?.id === currentUser.value.userId;
 });
 
 const point = ref(0);
@@ -52,7 +88,7 @@ async function fetchPoint() {
 }
 
 function goToList() {
-  router.push('/products/list');
+  router.push('/auction/list');
 }
 
 function formatPrice(price: number) {

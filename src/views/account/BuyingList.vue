@@ -9,6 +9,7 @@
             <th>입찰가</th>
             <th>입찰일</th>
             <th>상태</th>
+            <th>타입</th>
             <th>관리</th>
           </tr>
         </thead>
@@ -26,9 +27,13 @@
                 {{ purchase.status }}
               </span>
             </td>
+            <td>
+              <span :class="['status-badge', purchase.productType]">
+                {{ purchase.productType }}
+              </span>
+            </td>
             <td class="action-cell">
-              <button class="action-btn view" @click="goToProduct(purchase.productId)">상세보기</button>
-              <button class="action-btn cancel" @click="cancelBid(purchase.id)" :disabled="cancelLoadingId === purchase.id">입찰 취소</button>
+              <button v-if="purchase.productType === 'AUCTION'" class="action-btn cancel" @click="cancelBid(purchase.id)" :disabled="cancelLoadingId === purchase.id">입찰 취소</button>
             </td>
           </tr>
           <tr v-if="purchases.length === 0">
@@ -85,8 +90,12 @@ function formatDate(dateString: string) {
   const date = new Date(dateString);
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
-function goToProduct(productId: number) {
-  router.push(`/products/${productId}`);
+function goToProduct(productId: number, productType: string) {
+  if (productType === 'NORMAL') {
+    router.push(`/products/${productId}`);  
+  } else {
+    router.push(`/auction/${productId}`);
+  }
 }
 function changePage(page: number) {
   currentPage.value = page;
@@ -179,11 +188,11 @@ th {
   background-color: #e1f7e1;
   color: #2ecc71;
 }
-.status-badge.DONE {
+.status-badge.NORMAL {
   background-color: #f8f9fa;
   color: #7f8c8d;
 }
-.status-badge.RESERVED {
+.status-badge.AUCTION {
   background-color: #fff3e0;
   color: #f39c12;
 }

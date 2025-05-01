@@ -31,7 +31,7 @@
 import { defineComponent, computed, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import axios from '@/plugins/axios';
+import axios from '@/api/axios'
 
 export default defineComponent({
   name: 'DefaultLayout',

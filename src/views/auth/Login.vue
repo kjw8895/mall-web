@@ -42,7 +42,6 @@
 import { defineComponent, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import axios from '@/plugins/axios';
 
 export default defineComponent({
   name: 'Login',
@@ -60,29 +59,16 @@ export default defineComponent({
         loading.value = true;
         error.value = '';
         
-        const response = await axios.post('/auth/login', {
+        await store.dispatch('auth/login', {
           email: email.value,
           password: password.value
         });
-        
-        const { data } = response.data;
-        if (!data?.accessToken) {
-          throw new Error('Invalid response format');
-        }
 
-        // Vuex store에 토큰과 사용자 정보 저장
-        store.dispatch('auth/login', {
-          token: data.accessToken,
-          user: {
-            email: email.value
-          }
-        });
-        
         // 홈 페이지로 이동
         router.push('/');
       } catch (err: any) {
         console.error('Login error:', err);
-        error.value = err.response?.data?.message || '로그인에 실패했습니다.';
+        error.value = err.response?.data?.message || err.message || '로그인에 실패했습니다.';
       } finally {
         loading.value = false;
       }

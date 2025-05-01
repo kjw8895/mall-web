@@ -14,6 +14,8 @@ export interface SignupRequest {
 export interface AuthResponse {
   data: {
     accessToken: string;
+    userId: BigInteger;
+    nickName: string;
   };
 }
 

@@ -23,7 +23,7 @@
 <script setup lang="ts">
 import { ref, defineEmits } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from '@/plugins/axios';
+import axios from '@/api/axios'
 
 const emit = defineEmits(['close', 'registered']);
 

@@ -59,7 +59,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
-import axios from '@/plugins/axios';
+import axios from '@/api/axios'
 
 const route = useRoute();
 const router = useRouter();

@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { ref, watch, defineProps, defineEmits } from 'vue';
-import axios from '@/plugins/axios';
+import axios from '@/api/axios'
 
 const props = defineProps<{ product: any }>();
 const emit = defineEmits(['close', 'success']);

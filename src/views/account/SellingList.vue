@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, defineExpose } from 'vue';
-import axios from '@/plugins/axios';
+import axios from '@/api/axios'
 import ProductEdit from '@/views/products/ProductEdit.vue';
 
 const props = defineProps({

@@ -18,7 +18,7 @@
     <div class="products-grid">
       <div v-for="product in products" :key="product.id" class="product-card">
         <div class="product-image">
-          <img :src="product.imageUrl || 'https://via.placeholder.com/150'" :alt="product.name" />
+          <img :src="product.imageUrl" :alt="product.name" />
         </div>
         <div class="product-info">
           <h3 class="product-name product-link" @click="viewProduct(product.id)">{{ product.name }}</h3>
@@ -57,7 +57,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from '@/plugins/axios';
+import axios from '@/api/axios'
 
 interface User {
   id: number;

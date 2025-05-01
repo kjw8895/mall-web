@@ -13,6 +13,16 @@
         />
       </div>
       <div class="form-group">
+        <label for="name">Nickname</label>
+        <input
+          type="text"
+          id="nickName"
+          v-model="nickName"
+          required
+          class="form-control"
+        />
+      </div>
+      <div class="form-group">
         <label for="email">Email</label>
         <input
           type="email"
@@ -55,6 +65,7 @@ export default defineComponent({
     const store = useStore();
     const router = useRouter();
     const name = ref('');
+    const nickName = ref('');
     const email = ref('');
     const password = ref('');
 
@@ -65,6 +76,7 @@ export default defineComponent({
       try {
         await store.dispatch('auth/signup', {
           name: name.value,
+          nickName: nickName.value,
           email: email.value,
           password: password.value,
         });
@@ -77,6 +89,7 @@ export default defineComponent({
     return {
       name,
       email,
+      nickName,
       password,
       loading,
       error,

@@ -16,7 +16,7 @@
         <tbody>
           <tr v-for="purchase in purchases" :key="purchase.id">
             <td>
-              <span class="product-link" @click="goToProduct(purchase.productId)">
+              <span class="product-link" @click="goToProduct(purchase.productId, purchase.productType)">
                 {{ purchase.productName || purchase.productId }}
               </span>
             </td>
@@ -24,12 +24,12 @@
             <td>{{ formatDate(purchase.createdDatetime) }}</td>
             <td>
               <span :class="['status-badge', purchase.status]">
-                {{ purchase.status }}
+                {{ purchase.status.text }}
               </span>
             </td>
             <td>
               <span :class="['status-badge', purchase.productType]">
-                {{ purchase.productType }}
+                {{ purchase.productType.text }}
               </span>
             </td>
             <td class="action-cell">

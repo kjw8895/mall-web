@@ -2,7 +2,9 @@
 import { ref, computed, onMounted, defineExpose } from 'vue';
 import axios from '@/api/axios'
 import ProductEdit from '@/views/products/ProductEdit.vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const props = defineProps({
   showAddButton: { type: Boolean, default: false }
 });
@@ -16,6 +18,14 @@ const currentPage = ref(0);
 const totalPages = ref(0);
 const pageSize = ref(20);
 const loading = ref(false);
+
+function goToProduct(productId: number, productType: string) {
+  if (productType === 'NORMAL') {
+    router.push(`/products/${productId}`);  
+  } else {
+    router.push(`/auction/${productId}`);
+  }
+}
 
 async function fetchProducts() {
   try {
@@ -94,17 +104,27 @@ function handleEditSuccess() {
             <th>가격</th>
             <th>등록일</th>
             <th>상태</th>
+            <th>타입</th>
             <th>관리</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="product in filteredProducts" :key="product.id">
-            <td>{{ product.name }}</td>
+            <td>
+              <span class="product-link" @click="goToProduct(product.id, product.type)">
+                {{ product.name }}
+              </span>
+            </td>
             <td>{{ formatPrice(product.price) }}원</td>
             <td>{{ formatDate(product.createdDatetime) }}</td>
             <td>
               <span :class="['status-badge', product.status]">
-                {{ product.status }}
+                {{ product.status.text }}
+              </span>
+            </td>
+            <td>
+              <span :class="['status-badge', product.type]">
+                {{ product.type.text }}
               </span>
             </td>
             <td class="action-cell">
@@ -242,6 +262,14 @@ th {
   background-color: #fff3e0;
   color: #f39c12;
 }
+.status-badge.NORMAL {
+  background-color: #f8f9fa;
+  color: #7f8c8d;
+}
+.status-badge.AUCTION {
+  background-color: #fff3e0;
+  color: #f39c12;
+}
 
 .empty-message {
   text-align: center;
@@ -310,5 +338,10 @@ th {
 
 .modal-close:hover {
   background-color: #c0392b;
+}
+.product-link {
+  color: #5b7cfa;
+  cursor: pointer;
+  text-decoration: underline;
 }
 </style> 

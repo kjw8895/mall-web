@@ -12,7 +12,7 @@
         <div class="product-detail-seller">
           판매자: {{ product.user?.nickName || product.user?.email || '-' }}
         </div>
-        <button v-if="!isMyProduct" class="bid-btn" @click="showBidModal = true">구매하기</button>
+        <button v-if="!isMyProduct && product.status.code === 'WAITING'" class="bid-btn" @click="showBidModal = true">구매하기</button>
       </div>
     </div>
   </div>

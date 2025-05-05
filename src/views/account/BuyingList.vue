@@ -16,7 +16,7 @@
         <tbody>
           <tr v-for="purchase in purchases" :key="purchase.id">
             <td>
-              <span class="product-link" @click="goToProduct(purchase.productId, purchase.productType)">
+              <span class="product-link" @click="goToProduct(purchase.productId, purchase.productType.code)">
                 {{ purchase.productName || purchase.productId }}
               </span>
             </td>
@@ -33,7 +33,7 @@
               </span>
             </td>
             <td class="action-cell">
-              <button v-if="purchase.productType === 'AUCTION'" class="action-btn cancel" @click="cancelBid(purchase.id)" :disabled="cancelLoadingId === purchase.id">입찰 취소</button>
+              <button v-if="purchase.productType.code === 'AUCTION'" class="action-btn cancel" @click="cancelBid(purchase.id)" :disabled="cancelLoadingId === purchase.id">입찰 취소</button>
             </td>
           </tr>
           <tr v-if="purchases.length === 0">

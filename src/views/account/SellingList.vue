@@ -111,7 +111,7 @@ function handleEditSuccess() {
         <tbody>
           <tr v-for="product in filteredProducts" :key="product.id">
             <td>
-              <span class="product-link" @click="goToProduct(product.id, product.type)">
+              <span class="product-link" @click="goToProduct(product.id, product.type.code)">
                 {{ product.name }}
               </span>
             </td>
@@ -127,9 +127,11 @@ function handleEditSuccess() {
                 {{ product.type.text }}
               </span>
             </td>
-            <td class="action-cell">
+            <td class="action-cell" v-if="product.status.code === 'WAITING'">
               <button class="action-btn edit" @click="editProduct(product)">수정</button>
               <button class="action-btn delete" @click="deleteProduct(product)">삭제</button>
+            </td>
+            <td v-if="product.status.code !== 'WAITING'">
             </td>
           </tr>
           <tr v-if="filteredProducts.length === 0">

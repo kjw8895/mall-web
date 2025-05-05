@@ -4,7 +4,10 @@
     <div class="product-detail-card">
       <img v-if="product.imageUrl" :src="product.imageUrl" class="product-detail-img" :alt="product.name" />
       <div class="product-detail-info">
-        <h1 class="product-detail-title">{{ product.name }}</h1>
+        <h1 class="product-detail-title">
+          {{ product.name }}
+          <span class="status-badge">{{ product.status.text }}</span>
+        </h1>
         <div class="product-detail-meta">
           <span class="product-detail-price">{{ formatPrice(product.price) }}원</span>
           <span class="product-detail-date">등록일: {{ formatDate(product.createdDatetime) }}</span>
@@ -13,6 +16,20 @@
           판매자: {{ product.user?.nickName || product.user?.email || '-' }}
         </div>
         <button v-if="!isMyProduct && product.status.code === 'WAITING'" class="bid-btn" @click="showBidModal = true">구매하기</button>
+        <button
+          v-if="isMyProduct && product.status.code === 'PAID'"
+          class="complete-btn"
+          @click="completeDeal"
+        >
+          거래 완료
+        </button>
+      </div>
+    </div>
+    <div v-if="showBidModal" class="modal-overlay">
+      <div class="modal">
+        <h3>구매하시겠습니까?</h3>
+        <button @click="payForProduct">구매 확정</button>
+        <button @click="showBidModal = false">취소</button>
       </div>
     </div>
   </div>
@@ -111,6 +128,29 @@ async function submitBid() {
   }
 }
 
+const productId = route.params.id;
+const payForProduct = async () => {
+  try {
+    await axios.put(`/product/${productId}/pay`);
+    alert('구매가 완료되었습니다!');
+    showBidModal.value = false;
+    // 필요하다면 페이지 이동 또는 새로고침
+    window.location.reload();
+  } catch (e: any) {
+    alert(e.response?.data?.message || '구매에 실패했습니다.');
+  }
+};
+
+const completeDeal = async () => {
+  try {
+    await axios.put(`/product/${productId}/complete`);
+    alert('거래가 완료되었습니다!');
+    window.location.reload();
+  } catch (e: any) {
+    alert(e.response?.data?.message || '거래 완료 처리에 실패했습니다.');
+  }
+};
+
 onMounted(() => {
   fetchProduct();
   fetchBidList();
@@ -150,6 +190,12 @@ onMounted(() => {
   font-size: 2rem;
   font-weight: 700;
   color: #2c3e50;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.product-detail-status {
   margin-bottom: 0.5rem;
 }
 .product-detail-meta {
@@ -222,73 +268,16 @@ onMounted(() => {
   color: #7f8c8d;
   padding: 20px;
 }
+.modal-overlay {
+  position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
 .modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
+  background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  min-width: 300px; text-align: center;
 }
-.modal-content {
-  background: var(--main-white);
-  border-radius: 16px;
-  padding: 2rem 2.5rem;
-  min-width: 320px;
-  max-width: 95vw;
-  box-shadow: var(--main-shadow);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.bid-input {
-  width: 100%;
-  padding: 0.7rem 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--main-border);
-  font-size: 1rem;
-  background: var(--main-gray);
-  color: #222;
-  margin-bottom: 1rem;
-}
-.bid-error {
-  color: #e74c3c;
-  background: #fdf0ed;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  text-align: center;
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
-}
-.modal-actions {
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-  justify-content: center;
-}
-.modal-btn {
-  padding: 0.6rem 1.5rem;
-  border-radius: 8px;
-  border: none;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  background: #5b7cfa;
-  color: #fff;
-  transition: background 0.2s;
-}
-.modal-btn.cancel {
-  background: #eee;
-  color: #333;
-}
-.modal-btn:hover:not(.cancel) {
-  background: #2d014d;
-}
+.modal button { margin: 0 0.5rem; }
 .my-point {
   margin-bottom: 0.7rem;
   color: #5b7cfa;
@@ -311,5 +300,35 @@ onMounted(() => {
 .back-list-btn:hover {
   background: #5b7cfa;
   color: #fff;
+}
+.status-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #f3f3fa;
+  color: #5b7cfa;
+  margin-left: 0.5rem;
+  border: 1px solid #e0e0f7;
+}
+.status-badge.paid {
+  background-color: #e1f7e1;
+  color: #2ecc71;
+}
+.complete-btn {
+  margin-top: 1.5rem;
+  background: #27ae60;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.7rem 2.2rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.complete-btn:hover {
+  background: #219150;
 }
 </style> 

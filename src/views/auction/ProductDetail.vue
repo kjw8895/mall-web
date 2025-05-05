@@ -31,7 +31,7 @@
             <td>{{ bid.user?.nickName || bid.user?.name || bid.user?.email || '-' }}</td>
             <td>{{ formatPrice(bid.price) }}원</td>
             <td>{{ formatDate(bid.createdDatetime) }}</td>
-            <td>{{ bid.status }}</td>
+            <td>{{ bid.status.text }}</td>
           </tr>
           <tr v-if="bidList.length === 0">
             <td colspan="4" class="empty-message">입찰 내역이 없습니다.</td>

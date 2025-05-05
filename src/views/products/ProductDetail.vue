@@ -6,7 +6,16 @@
       <div class="product-detail-info">
         <h1 class="product-detail-title">
           {{ product.name }}
-          <span class="status-badge">{{ product.status.text }}</span>
+          <span class="status-badge" :class="`status-${product.status.code.toLowerCase()}`">
+            {{ product.status.text }}
+          </span>
+          <button
+            v-if="!isMyProduct || bidList.length > 0"
+            class="chat-btn-inline"
+            @click="goToChat(bidList.length > 0 ? bidList[0].user : undefined)"
+          >
+            채팅하기
+          </button>
         </h1>
         <div class="product-detail-meta">
           <span class="product-detail-price">{{ formatPrice(product.price) }}원</span>
@@ -31,6 +40,31 @@
         <button @click="payForProduct">구매 확정</button>
         <button @click="showBidModal = false">취소</button>
       </div>
+    </div>
+    <div v-if="isMyProduct && bidList.length > 0" class="buyer-info-section">
+      <h2 class="buyer-info-title">구매자 정보</h2>
+      <table class="buyer-info-table">
+        <tr>
+          <th>닉네임</th>
+          <td>{{ bidList[0].user?.nickName || '-' }}</td>
+        </tr>
+        <tr>
+          <th>이름</th>
+          <td>{{ bidList[0].user?.name || '-' }}</td>
+        </tr>
+        <tr>
+          <th>이메일</th>
+          <td>{{ bidList[0].user?.email || '-' }}</td>
+        </tr>
+        <tr>
+          <th>구매가</th>
+          <td>{{ formatPrice(bidList[0].price) }}원</td>
+        </tr>
+        <tr>
+          <th>구매일</th>
+          <td>{{ formatDate(bidList[0].createdDatetime) }}</td>
+        </tr>
+      </table>
     </div>
   </div>
   <div v-else class="product-detail-loading">로딩 중...</div>
@@ -150,6 +184,12 @@ const completeDeal = async () => {
     alert(e.response?.data?.message || '거래 완료 처리에 실패했습니다.');
   }
 };
+
+function goToChat(user?: any) {
+  // user가 있으면 해당 유저와, 없으면 기본 채팅방
+  // router.push(`/chat?userId=${user?.id || ''}&productId=${productId}`);
+  alert('채팅방으로 이동 (구현 필요)');
+}
 
 onMounted(() => {
   fetchProduct();
@@ -301,20 +341,51 @@ onMounted(() => {
   background: #5b7cfa;
   color: #fff;
 }
-.status-badge {
+.status-badge,
+.chat-btn-inline {
   display: inline-block;
-  padding: 4px 14px;
-  border-radius: 999px;
+  min-width: 72px;
+  height: 2.1rem;
+  line-height: 2.1rem;
   font-size: 1rem;
   font-weight: 600;
-  background: #f3f3fa;
-  color: #5b7cfa;
+  border-radius: 999px;
+  text-align: center;
+  box-sizing: border-box;
+  vertical-align: middle;
+  padding: 0 14px;
+}
+.status-badge {
   margin-left: 0.5rem;
   border: 1px solid #e0e0f7;
+  background: #f3f3fa;
+  color: #5b7cfa;
 }
-.status-badge.paid {
-  background-color: #e1f7e1;
+.status-badge.status-waiting {
+  background: #f3f3fa;
+  color: #5b7cfa;
+  border: 1px solid #e0e0f7;
+}
+.status-badge.status-paid {
+  background: #e1f7e1;
   color: #2ecc71;
+  border: 1px solid #b6e6c9;
+}
+.status-badge.status-complete {
+  background: #f8f9fa;
+  color: #7f8c8d;
+  border: 1px solid #e0e0e0;
+}
+.chat-btn-inline {
+  background: #5b7cfa;
+  color: #fff;
+  border: none;
+  margin-left: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.chat-btn-inline:hover {
+  background: #2d014d;
 }
 .complete-btn {
   margin-top: 1.5rem;
@@ -330,5 +401,37 @@ onMounted(() => {
 }
 .complete-btn:hover {
   background: #219150;
+}
+.buyer-info-section {
+  margin-top: 2.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem 1.2rem;
+  box-shadow: 0 1px 4px rgba(44,0,80,0.04);
+}
+.buyer-info-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+.buyer-info-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.buyer-info-table th, .buyer-info-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  font-size: 1rem;
+}
+.buyer-info-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+  width: 90px;
 }
 </style> 

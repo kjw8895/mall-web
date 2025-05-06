@@ -9,6 +9,7 @@
           <router-link to="/products/list">중고거래</router-link>
           <router-link to="/auction/list">중고경매</router-link>
           <router-link to="/account/trade">판매/구매 목록</router-link>
+          <router-link to="/chat/list">채팅목록</router-link>
           <router-link v-if="!isAuthenticated" to="/auth/login" class="nav-btn">로그인</router-link>
         </nav>
         <div class="header-user" v-if="isAuthenticated">

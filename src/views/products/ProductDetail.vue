@@ -20,9 +20,9 @@
             {{ product.status.text }}
           </span>
           <button
-            v-if="!isMyProduct || bidList.length > 0"
+            v-if="!isMyProduct"
             class="chat-btn-inline"
-            @click="goToChat(bidList.length > 0 ? bidList[0].user : undefined)"
+            @click="goToChat()"
           >
             채팅하기
           </button>
@@ -54,26 +54,28 @@
     <div v-if="isMyProduct && bidList.length > 0" class="buyer-info-section">
       <h2 class="buyer-info-title">구매자 정보</h2>
       <table class="buyer-info-table">
-        <tr>
-          <th>닉네임</th>
-          <td>{{ bidList[0].user?.nickName || '-' }}</td>
-        </tr>
-        <tr>
-          <th>이름</th>
-          <td>{{ bidList[0].user?.name || '-' }}</td>
-        </tr>
-        <tr>
-          <th>이메일</th>
-          <td>{{ bidList[0].user?.email || '-' }}</td>
-        </tr>
-        <tr>
-          <th>구매가</th>
-          <td>{{ formatPrice(bidList[0].price) }}원</td>
-        </tr>
-        <tr>
-          <th>구매일</th>
-          <td>{{ formatDate(bidList[0].createdDatetime) }}</td>
-        </tr>
+        <tbody>
+          <tr>
+            <th>닉네임</th>
+            <td>{{ bidList[0].user?.nickName || '-' }}</td>
+          </tr>
+          <tr>
+            <th>이름</th>
+            <td>{{ bidList[0].user?.name || '-' }}</td>
+          </tr>
+          <tr>
+            <th>이메일</th>
+            <td>{{ bidList[0].user?.email || '-' }}</td>
+          </tr>
+          <tr>
+            <th>구매가</th>
+            <td>{{ formatPrice(bidList[0].price) }}원</td>
+          </tr>
+          <tr>
+            <th>구매일</th>
+            <td>{{ formatDate(bidList[0].createdDatetime) }}</td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>
@@ -195,10 +197,17 @@ const completeDeal = async () => {
   }
 };
 
-function goToChat(user?: any) {
-  // user가 있으면 해당 유저와, 없으면 기본 채팅방
-  // router.push(`/chat?userId=${user?.id || ''}&productId=${productId}`);
-  alert('채팅방으로 이동 (구현 필요)');
+async function goToChat() {
+  const productId = product.value.id;
+  const sellerId = product.value.user.id;
+  const buyerId = currentUser.value.userId;
+  try {
+    const res = await axios.post('/chat/room', { productId, sellerId, buyerId });
+    const roomId = res.data.data.id;
+    router.push(`/chat/room/${roomId}`);
+  } catch (e) {
+    alert('채팅방 생성에 실패했습니다.');
+  }
 }
 
 onMounted(() => {

@@ -21,7 +21,11 @@
       </div>
       <div class="form-group">
         <label>상품 이미지</label>
-        <input type="file" @change="onFileChange" accept="image/*" required />
+        <input type="file" @change="onImageChange" accept="image/*" />
+      </div>
+      <div class="form-group">
+        <label>상품 비디오</label>
+        <input type="file" @change="onVideoChange" accept="video/*" />
       </div>
       <div v-if="error" class="error">{{ error }}</div>
       <button type="submit" :disabled="loading">등록하기</button>
@@ -39,27 +43,31 @@ const emit = defineEmits(['close', 'registered']);
 const name = ref('');
 const type = ref('NORMAL');
 const price = ref<number | null>(null);
-const file = ref<File | null>(null);
+const imageFile = ref<File|null>(null);
+const videoFile = ref<File|null>(null);
 const loading = ref(false);
 const error = ref('');
 const router = useRouter();
 
-function onFileChange(e: Event) {
+function onImageChange(e: Event) {
   const files = (e.target as HTMLInputElement).files;
-  if (files && files.length > 0) {
-    file.value = files[0];
-  }
+  if (files && files.length > 0) imageFile.value = files[0];
+}
+function onVideoChange(e: Event) {
+  const files = (e.target as HTMLInputElement).files;
+  if (files && files.length > 0) videoFile.value = files[0];
 }
 
 async function handleSubmit() {
-  if (!name.value || !price.value || !file.value) return;
+  if (!name.value || !price.value || !imageFile.value || !videoFile.value) return;
   loading.value = true;
   error.value = '';
   try {
     const formData = new FormData();
     const dto = { name: name.value, price: price.value, type: type.value };
     formData.append('request', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
-    formData.append('file', file.value);
+    if (imageFile.value) formData.append('image', imageFile.value);
+    if (videoFile.value) formData.append('video', videoFile.value);
     await axios.post('/product', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });

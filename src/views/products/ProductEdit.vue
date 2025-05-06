@@ -12,7 +12,11 @@
       </div>
       <div class="form-group">
         <label>상품 이미지 (선택)</label>
-        <input type="file" @change="onFileChange" accept="image/*" />
+        <input type="file" @change="onImageChange" accept="image/*" />
+      </div>
+      <div class="form-group">
+        <label>상품 비디오 (선택)</label>
+        <input type="file" @change="onVideoChange" accept="video/*" />
       </div>
       <div v-if="error" class="error">{{ error }}</div>
       <button type="submit" :disabled="loading">수정하기</button>
@@ -29,7 +33,8 @@ const emit = defineEmits(['close', 'success']);
 
 const name = ref('');
 const price = ref<number | null>(null);
-const file = ref<File | null>(null);
+const imageFile = ref<File | null>(null);
+const videoFile = ref<File | null>(null);
 const loading = ref(false);
 const error = ref('');
 
@@ -37,15 +42,19 @@ watch(() => props.product, (val) => {
   if (val) {
     name.value = val.name;
     price.value = val.price;
-    file.value = null;
+    imageFile.value = null;
+    videoFile.value = null;
   }
 }, { immediate: true });
 
-function onFileChange(e: Event) {
+function onImageChange(e: Event) {
   const files = (e.target as HTMLInputElement).files;
-  if (files && files.length > 0) {
-    file.value = files[0];
-  }
+  if (files && files.length > 0) imageFile.value = files[0];
+}
+
+function onVideoChange(e: Event) {
+  const files = (e.target as HTMLInputElement).files;
+  if (files && files.length > 0) videoFile.value = files[0];
 }
 
 async function handleSubmit() {
@@ -56,8 +65,11 @@ async function handleSubmit() {
     const formData = new FormData();
     const dto = { name: name.value, price: price.value };
     formData.append('request', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
-    if (file.value) {
-      formData.append('file', file.value);
+    if (imageFile.value) {
+      formData.append('image', imageFile.value);
+    }
+    if (videoFile.value) {
+      formData.append('video', videoFile.value);
     }
     await axios.put(`/product/${props.product.id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }

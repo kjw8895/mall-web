@@ -2,7 +2,17 @@
   <div class="product-detail-container" v-if="product">
     <button class="back-list-btn" @click="goToList">목록으로</button>
     <div class="product-detail-card">
-      <img v-if="product.imageUrl" :src="product.imageUrl" class="product-detail-img" :alt="product.name" />
+      <div class="product-media-group">
+        <img v-if="product.imageUrl" :src="product.imageUrl" class="product-detail-img" :alt="product.name" />
+        <video
+          v-if="product.videoUrl"
+          :src="product.videoUrl"
+          class="product-detail-video"
+          controls
+        >
+          브라우저가 video 태그를 지원하지 않습니다.
+        </video>
+      </div>
       <div class="product-detail-info">
         <h1 class="product-detail-title">{{ product.name }}</h1>
         <div class="product-detail-meta">
@@ -168,13 +178,21 @@ onMounted(() => {
   gap: 2rem;
   align-items: flex-start;
 }
-.product-detail-img {
+.product-media-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  align-items: center;
+  min-width: 220px;
+}
+.product-detail-img,
+.product-detail-video {
   width: 220px;
-  height: 220px;
-  object-fit: cover;
+  max-width: 100%;
   border-radius: 12px;
   background: #f8f9fa;
   box-shadow: 0 2px 8px rgba(44,0,80,0.06);
+  display: block;
 }
 .product-detail-info {
   flex: 1;

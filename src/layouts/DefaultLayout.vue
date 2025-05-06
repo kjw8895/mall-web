@@ -14,7 +14,7 @@
         <div class="header-user" v-if="isAuthenticated">
           <span class="user-name">
             {{ userName }}
-            <span class="user-point">{{ point }}P</span>
+            <span class="user-point" @click="showPointModal = true" style="cursor:pointer;">{{ point }}P</span>
             <button class="logout-btn-small" @click="handleLogout">로그아웃</button>
           </span>
         </div>
@@ -25,6 +25,7 @@
         <router-view></router-view>
       </main>
     </div>
+    <PointModal v-if="showPointModal" @close="showPointModal = false" @success="onPointSuccess" />
   </div>
 </template>
 
@@ -33,9 +34,11 @@ import { defineComponent, computed, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import axios from '@/api/axios'
+import PointModal from '@/components/PointModal.vue';
 
 export default defineComponent({
   name: 'DefaultLayout',
+  components: { PointModal },
   setup() {
     const store = useStore();
     const router = useRouter();
@@ -43,6 +46,7 @@ export default defineComponent({
     const user = computed(() => store.getters['auth/currentUser']);
     const userName = computed(() => user.value?.nickName || user.value?.name || user.value?.email || '');
     const point = ref(0);
+    const showPointModal = ref(false);
 
     const fetchPoint = async () => {
       try {
@@ -62,7 +66,11 @@ export default defineComponent({
       router.push('/auth/login');
     };
 
-    return { isAuthenticated, userName, point, handleLogout };
+    function onPointSuccess() {
+      fetchPoint();
+    }
+
+    return { isAuthenticated, userName, point, handleLogout, showPointModal, onPointSuccess };
   },
 });
 </script>

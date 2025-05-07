@@ -127,7 +127,7 @@ function handleEditSuccess() {
                 {{ product.type.text }}
               </span>
             </td>
-            <td class="action-cell">
+            <td class="action-cell" v-if="product.status.code === 'WAITING'">
               <button class="action-btn edit" @click="editProduct(product)">수정</button>
               <button class="action-btn delete" @click="deleteProduct(product)">삭제</button>
             </td>

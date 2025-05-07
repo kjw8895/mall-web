@@ -13,16 +13,6 @@ const routes = [
         component: () => import('@/views/Home.vue'),
       },
       {
-        path: '/chat/room/:roomId',
-        name: 'ChatRoom',
-        component: () => import('@/views/chat/ChatRoom.vue')
-      },
-      {
-        path: '/chat/list',
-        name: 'ChatList',
-        component: () => import('@/views/chat/ChatList.vue')
-      },
-      {
         path: 'products',
         children: [
           {

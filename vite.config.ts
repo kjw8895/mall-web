@@ -23,8 +23,5 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
-  },
-  define: {
-    global: 'window',
-  },
+  }
 }) 

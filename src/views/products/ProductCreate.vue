@@ -59,7 +59,7 @@ function onVideoChange(e: Event) {
 }
 
 async function handleSubmit() {
-  if (!name.value || !price.value || !imageFile.value || !videoFile.value) return;
+  if (!name.value || !price.value || !imageFile.value) return;
   loading.value = true;
   error.value = '';
   try {

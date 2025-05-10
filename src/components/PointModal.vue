@@ -13,28 +13,47 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import tossPayments from '@/store/useToassPayments';
 import axios from '@/api/axios';
+import store from '@/store';
+import { v4 as uuidv4 } from 'uuid';
+
 
 const point = ref<number | null>(null);
 const loading = ref(false);
 const error = ref('');
+const payments = tossPayments;
+const currentUser = computed(() => store.getters['auth/currentUser']);
 
 const emit = defineEmits(['close', 'success']);
+
 
 async function chargePoint() {
   if (!point.value || point.value <= 0) {
     error.value = '유효한 포인트를 입력하세요.';
     return;
   }
+  const orderId = uuidv4();
+  const customerName = currentUser.value?.email;
   loading.value = true;
   error.value = '';
   try {
-    await axios.post('/point', { point: point.value });
-    emit('success');
-    emit('close');
-    alert('포인트가 충전되었습니다!');
+    payments.requestPayment('CARD', {
+    amount: point.value,
+    orderId,
+    orderName: '포인트 충전',
+    customerName,
+    successUrl: 'http://localhost:5173/payment/success',
+    failUrl: 'http://localhost:5173/payment/fail',
+  })
+
+    // await axios.post('/point', { point: point.value });
+    // emit('success');
+    // emit('close');
+    // alert('포인트가 충전되었습니다!');
   } catch (err: any) {
+    console.log(err);
     error.value = err.response?.data?.message || '포인트 충전에 실패했습니다.';
   } finally {
     loading.value = false;

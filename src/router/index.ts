@@ -95,6 +95,16 @@ const routes = [
       },
     ],
   },
+  {
+    path: '/payment/success',
+    name: 'PaymentSuccess',
+    component: () => import('@/views/payment/PaymentSuccess.vue'),
+  },
+  {
+    path: '/payment/fail',
+    name: 'PaymentFail',
+    component: () => import('@/views/payment/PaymentFail.vue'),
+  },
 ];
 
 const router = createRouter({

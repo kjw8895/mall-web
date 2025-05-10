@@ -157,6 +157,17 @@ async function submitBid() {
     bidError.value = '유효한 입찰가를 입력하세요.';
     return;
   }
+  if (bidPrice.value < product.value.price) {
+    bidError.value = `입찰가는 상품 가격(${formatPrice(product.value.price)}원) 이상이어야 합니다.`;
+    return;
+  }
+  const maxBid = bidList.value.length > 0
+    ? Math.max(...bidList.value.map(bid => bid.price))
+    : 0;
+  if (bidPrice.value <= maxBid) {
+    bidError.value = `입찰가는 현재 최고 입찰가(${formatPrice(maxBid)}원)보다 높아야 합니다.`;
+    return;
+  }
   if (bidPrice.value > point.value) {
     bidError.value = '보유 포인트보다 높은 금액은 입찰할 수 없습니다.';
     return;

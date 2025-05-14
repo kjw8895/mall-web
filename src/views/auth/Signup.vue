@@ -1,56 +1,51 @@
 <template>
-  <div class="signup">
-    <h1>Sign Up</h1>
-    <form @submit.prevent="handleSubmit" class="form">
-      <div class="form-group">
-        <label for="name">Name</label>
-        <input
-          type="text"
-          id="name"
-          v-model="name"
-          required
-          class="form-control"
-        />
-      </div>
-      <div class="form-group">
-        <label for="name">Nickname</label>
-        <input
-          type="text"
-          id="nickName"
-          v-model="nickName"
-          required
-          class="form-control"
-        />
-      </div>
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input
-          type="email"
-          id="email"
-          v-model="email"
-          required
-          class="form-control"
-        />
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          v-model="password"
-          required
-          class="form-control"
-        />
-      </div>
-      <div class="error" v-if="error">{{ error }}</div>
-      <button type="submit" class="btn" :disabled="loading">
-        {{ loading ? 'Loading...' : 'Sign Up' }}
-      </button>
-      <p class="login-link">
-        Already have an account?
-        <router-link to="/auth/login">Login</router-link>
-      </p>
-    </form>
+  <div class="login-bg">
+    <div class="login-card">
+      <h1 class="login-title">회원가입</h1>
+      <p class="login-desc">TrustTrade에 오신 것을 환영합니다</p>
+      <form @submit.prevent="handleSubmit" class="login-form">
+        <div class="form-group">
+          <label for="nickName">닉네임</label>
+          <input
+            type="text"
+            id="nickName"
+            v-model="nickName"
+            required
+            class="form-control"
+            placeholder="닉네임을 입력하세요"
+          />
+        </div>
+        <div class="form-group">
+          <label for="email">이메일</label>
+          <input
+            type="email"
+            id="email"
+            v-model="email"
+            required
+            class="form-control"
+            placeholder="이메일을 입력하세요"
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">비밀번호</label>
+          <input
+            type="password"
+            id="password"
+            v-model="password"
+            required
+            class="form-control"
+            placeholder="비밀번호를 입력하세요"
+          />
+        </div>
+        <div class="error" v-if="error">{{ error }}</div>
+        <button type="submit" class="login-btn" :disabled="loading">
+          {{ loading ? '가입 중...' : '회원가입' }}
+        </button>
+        <div class="signup-link">
+          이미 계정이 있으신가요? <router-link to="/auth/login">로그인</router-link>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -64,7 +59,6 @@ export default defineComponent({
   setup() {
     const store = useStore();
     const router = useRouter();
-    const name = ref('');
     const nickName = ref('');
     const email = ref('');
     const password = ref('');
@@ -75,7 +69,6 @@ export default defineComponent({
     const handleSubmit = async () => {
       try {
         await store.dispatch('auth/signup', {
-          name: name.value,
           nickName: nickName.value,
           email: email.value,
           password: password.value,
@@ -87,7 +80,6 @@ export default defineComponent({
     };
 
     return {
-      name,
       email,
       nickName,
       password,
@@ -100,61 +92,112 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.signup {
+.login-bg {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--main-bg-gradient);
+}
+
+.login-card {
+  background: var(--main-white);
+  border-radius: 24px;
+  box-shadow: var(--main-shadow);
+  padding: 3rem 2.5rem 2.5rem 2.5rem;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-title {
+  color: var(--main-purple);
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
   text-align: center;
 }
 
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.login-desc {
+  color: var(--main-purple-light);
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
-.form-group {
+.login-form {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  text-align: left;
+  gap: 1.2rem;
+}
+
+.form-group label {
+  color: var(--main-purple-dark);
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+  display: block;
 }
 
 .form-control {
-  padding: 0.5rem;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--main-border);
   font-size: 1rem;
+  background: var(--main-gray);
+  color: #222;
+  margin-top: 0.2rem;
 }
 
-.btn {
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
+.form-control:focus {
+  outline: none;
+  border-color: var(--main-purple);
+  box-shadow: 0 0 0 2px var(--main-purple-light);
 }
 
-.btn:disabled {
-  background-color: #6c757d;
+.login-btn {
+  width: 100%;
+  background: var(--main-btn);
+  color: var(--main-white);
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.9rem 0;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+
+.login-btn:disabled {
+  background: #b7a6e7;
   cursor: not-allowed;
 }
 
 .error {
-  color: #dc3545;
-  font-size: 0.875rem;
+  color: #e74c3c;
+  background: #fdf0ed;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  font-size: 0.95rem;
 }
 
-.login-link {
-  margin-top: 1rem;
-  font-size: 0.875rem;
+.signup-link {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: var(--main-purple-dark);
+  font-size: 1rem;
 }
 
-.login-link a {
-  color: #007bff;
+.signup-link a {
+  color: var(--main-purple);
+  font-weight: 600;
   text-decoration: none;
 }
 
-.login-link a:hover {
+.signup-link a:hover {
   text-decoration: underline;
 }
 </style> 

@@ -6,14 +6,31 @@
       <form @submit.prevent="handleSubmit" class="login-form">
         <div class="form-group">
           <label for="nickName">닉네임</label>
-          <input
-            type="text"
-            id="nickName"
-            v-model="nickName"
-            required
-            class="form-control"
-            placeholder="닉네임을 입력하세요"
-          />
+          <div class="nickname-input-group">
+            <input
+              type="text"
+              id="nickName"
+              v-model="nickName"
+              required
+              class="form-control"
+              placeholder="닉네임을 입력하세요"
+              :class="{ 'is-invalid': nicknameError }"
+            />
+            <button 
+              type="button" 
+              class="check-btn" 
+              @click="checkNickname"
+              :disabled="!nickName || isCheckingNickname"
+            >
+              {{ isCheckingNickname ? '확인 중...' : '중복확인' }}
+            </button>
+          </div>
+          <div class="validation-message" v-if="nicknameError">
+            {{ nicknameError }}
+          </div>
+          <div class="validation-message success" v-if="nicknameSuccess">
+            {{ nicknameSuccess }}
+          </div>
         </div>
         <div class="form-group">
           <label for="email">이메일</label>
@@ -38,7 +55,7 @@
           />
         </div>
         <div class="error" v-if="error">{{ error }}</div>
-        <button type="submit" class="login-btn" :disabled="loading">
+        <button type="submit" class="login-btn" :disabled="loading || !isNicknameValidated">
           {{ loading ? '가입 중...' : '회원가입' }}
         </button>
         <div class="signup-link">
@@ -53,6 +70,7 @@
 import { defineComponent, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import axios from '@/api/axios';
 
 export default defineComponent({
   name: 'Signup',
@@ -62,11 +80,45 @@ export default defineComponent({
     const nickName = ref('');
     const email = ref('');
     const password = ref('');
+    const isCheckingNickname = ref(false);
+    const nicknameError = ref('');
+    const nicknameSuccess = ref('');
+    const isNicknameValidated = ref(false);
 
     const loading = computed(() => store.getters['auth/isLoading']);
     const error = computed(() => store.getters['auth/authError']);
 
+    const checkNickname = async () => {
+      if (!nickName.value) return;
+      
+      try {
+        isCheckingNickname.value = true;
+        nicknameError.value = '';
+        nicknameSuccess.value = '';
+        
+        const response = await axios.get(`/auth/nickName/validation?nickName=${nickName.value}`);
+        
+        if (response.data.data) {
+          nicknameError.value = '이미 사용 중인 닉네임입니다.';
+          isNicknameValidated.value = false;
+        } else {
+          nicknameSuccess.value = '사용 가능한 닉네임입니다.';
+          isNicknameValidated.value = true;
+        }
+      } catch (err: any) {
+        nicknameError.value = '닉네임 중복 확인 중 오류가 발생했습니다.';
+        isNicknameValidated.value = false;
+      } finally {
+        isCheckingNickname.value = false;
+      }
+    };
+
     const handleSubmit = async () => {
+      if (!isNicknameValidated.value) {
+        nicknameError.value = '닉네임 중복 확인이 필요합니다.';
+        return;
+      }
+
       try {
         await store.dispatch('auth/signup', {
           nickName: nickName.value,
@@ -86,6 +138,11 @@ export default defineComponent({
       loading,
       error,
       handleSubmit,
+      checkNickname,
+      isCheckingNickname,
+      nicknameError,
+      nicknameSuccess,
+      isNicknameValidated
     };
   },
 });
@@ -199,5 +256,54 @@ export default defineComponent({
 
 .signup-link a:hover {
   text-decoration: underline;
+}
+
+.nickname-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nickname-input-group .form-control {
+  flex: 1;
+}
+
+.check-btn {
+  padding: 0.75rem 1rem;
+  background: var(--main-purple);
+  color: var(--main-white);
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.check-btn:hover {
+  background: var(--main-purple-dark);
+}
+
+.check-btn:disabled {
+  background: #b7a6e7;
+  cursor: not-allowed;
+}
+
+.validation-message {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #e74c3c;
+}
+
+.validation-message.success {
+  color: #2ecc71;
+}
+
+.form-control.is-invalid {
+  border-color: #e74c3c;
+}
+
+.form-control.is-invalid:focus {
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
 }
 </style> 

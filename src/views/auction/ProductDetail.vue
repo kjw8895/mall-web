@@ -34,6 +34,10 @@
         <div class="product-detail-seller">
           판매자: {{ product.user?.nickName || product.user?.email || '-' }}
         </div>
+        <div class="product-detail-description">
+          <h3>상품 설명</h3>
+          <p>{{ product.description || '상품 설명이 없습니다.' }}</p>
+        </div>
         <button v-if="!isMyProduct && product.status.code !== 'COMPLETE'" class="bid-btn" @click="showBidModal = true">입찰하기</button>
       </div>
     </div>
@@ -110,7 +114,7 @@ async function fetchPoint() {
   try {
     const res = await axios.get('/point/total');
     point.value = res.data.data ?? 0;
-  } catch {
+  } catch (error) {
     point.value = 0;
   }
 }
@@ -146,7 +150,7 @@ async function fetchBidList() {
   }
 }
 
-function closeBidModal() {
+async function closeBidModal() {
   showBidModal.value = false;
   bidPrice.value = null;
   bidError.value = '';
@@ -176,9 +180,10 @@ async function submitBid() {
   bidError.value = '';
   try {
     await axios.post(`/product/${route.params.id}/purchase`, { price: bidPrice.value });
-    closeBidModal();
-    fetchBidList();
-    fetchPoint();
+    await closeBidModal();
+    await fetchBidList();
+    await fetchPoint();
+    window.location.reload();
   } catch (err: any) {
     bidError.value = err.response?.data?.message || '입찰에 실패했습니다.';
   } finally {
@@ -204,8 +209,12 @@ async function awardBid(bidId: number) {
   try {
     await axios.put(`/product/${product.value.id}/purchase/${bidId}`);
     alert('낙찰 처리되었습니다!');
-    fetchBidList();
-    await fetchProduct();
+    await Promise.all([
+      fetchBidList(),
+      fetchProduct(),
+      fetchPoint()
+    ]);
+    window.location.reload();
   } catch (e: any) {
     alert(e.response?.data?.message || '낙찰 처리에 실패했습니다.');
   }
@@ -492,5 +501,34 @@ onMounted(() => {
 }
 .bid-success-btn:hover:not(:disabled) {
   background: #219150;
+}
+.product-detail-description {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--main-gray);
+  border-radius: 8px;
+}
+.product-detail-description h3 {
+  color: var(--main-purple-dark);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.product-detail-description p {
+  color: #333;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.point-info {
+  margin: 1rem 0;
+  padding: 0.8rem;
+  background: var(--main-gray);
+  border-radius: 8px;
+  color: var(--main-purple-dark);
+  font-size: 1rem;
+}
+.point-info b {
+  color: var(--main-purple);
+  font-weight: 600;
 }
 </style> 

@@ -7,6 +7,15 @@
         <input v-model="name" required placeholder="상품명을 입력하세요" />
       </div>
       <div class="form-group">
+        <label>상품 설명</label>
+        <textarea 
+          v-model="description" 
+          required 
+          placeholder="상품에 대한 설명을 입력하세요"
+          rows="4"
+        ></textarea>
+      </div>
+      <div class="form-group">
         <label>상품타입</label>
         <div>
           <label>
@@ -41,6 +50,7 @@ import axios from '@/api/axios'
 const emit = defineEmits(['close', 'registered']);
 
 const name = ref('');
+const description = ref('');
 const type = ref('NORMAL');
 const price = ref<number | null>(null);
 const imageFile = ref<File|null>(null);
@@ -59,12 +69,17 @@ function onVideoChange(e: Event) {
 }
 
 async function handleSubmit() {
-  if (!name.value || !price.value || !imageFile.value) return;
+  if (!name.value || !price.value || !imageFile.value || !description.value) return;
   loading.value = true;
   error.value = '';
   try {
     const formData = new FormData();
-    const dto = { name: name.value, price: price.value, type: type.value };
+    const dto = { 
+      name: name.value, 
+      price: price.value, 
+      type: type.value,
+      description: description.value
+    };
     formData.append('request', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
     if (imageFile.value) formData.append('image', imageFile.value);
     if (videoFile.value) formData.append('video', videoFile.value);
@@ -101,7 +116,10 @@ async function handleSubmit() {
   margin-bottom: 0.5rem;
   display: block;
 }
-input[type="text"], input[type="number"], input[type="file"] {
+input[type="text"], 
+input[type="number"], 
+input[type="file"],
+textarea {
   width: 100%;
   padding: 0.7rem 1rem;
   border-radius: 8px;
@@ -109,6 +127,17 @@ input[type="text"], input[type="number"], input[type="file"] {
   font-size: 1rem;
   background: var(--main-gray);
   color: #222;
+}
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+textarea:focus,
+input[type="text"]:focus, 
+input[type="number"]:focus {
+  outline: none;
+  border-color: var(--main-purple);
+  box-shadow: 0 0 0 2px var(--main-purple-light);
 }
 button[type="submit"] {
   width: 100%;

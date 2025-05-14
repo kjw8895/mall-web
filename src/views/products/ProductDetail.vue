@@ -34,6 +34,10 @@
         <div class="product-detail-seller">
           판매자: {{ product.user?.nickName || product.user?.email || '-' }}
         </div>
+        <div class="product-detail-description">
+          <h3>상품 설명</h3>
+          <p>{{ product.description || '상품 설명이 없습니다.' }}</p>
+        </div>
         <button v-if="!isMyProduct && product.status.code === 'WAITING'" class="bid-btn" @click="showBidModal = true">구매하기</button>
         <button
           v-if="isMyProduct && product.status.code === 'PAID'"
@@ -58,10 +62,6 @@
           <tr>
             <th>닉네임</th>
             <td>{{ bidList[0].user?.nickName || '-' }}</td>
-          </tr>
-          <tr>
-            <th>이름</th>
-            <td>{{ bidList[0].user?.name || '-' }}</td>
           </tr>
           <tr>
             <th>이메일</th>
@@ -191,6 +191,7 @@ const completeDeal = async () => {
   try {
     await axios.put(`/product/${productId}/complete`);
     alert('거래가 완료되었습니다!');
+    await fetchPoint();
     window.location.reload();
   } catch (e: any) {
     alert(e.response?.data?.message || '거래 완료 처리에 실패했습니다.');
@@ -460,5 +461,22 @@ onMounted(() => {
   font-weight: 600;
   color: #2c3e50;
   width: 90px;
+}
+.product-detail-description {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--main-gray);
+  border-radius: 8px;
+}
+.product-detail-description h3 {
+  color: var(--main-purple-dark);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.product-detail-description p {
+  color: #333;
+  line-height: 1.6;
+  white-space: pre-wrap;
 }
 </style> 

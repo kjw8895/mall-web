@@ -44,7 +44,7 @@ const messages = ref<any[]>([]);
 const input = ref('');
 let stompClient: any = null;
 
-const backendUrl = 'http://localhost:8081';
+const backendUrl = 'http://3.35.48.10:8081';
 
 function connectStomp() {
   const socket = new SockJS(`${backendUrl}/ws-chat`);

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const instance = axios.create({
+const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json'
@@ -8,7 +8,7 @@ const instance = axios.create({
 });
 
 // 요청 인터셉터
-instance.interceptors.request.use(
+api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -22,7 +22,7 @@ instance.interceptors.request.use(
 );
 
 // 응답 인터셉터
-instance.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
@@ -33,4 +33,4 @@ instance.interceptors.response.use(
   }
 );
 
-export default instance;
+export default api;

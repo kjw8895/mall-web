@@ -1,36 +1,31 @@
 import axios from 'axios';
 
-const api = axios.create({
-  baseURL: '/api',
-  timeout: 5000,
+const instance = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
-  },
+    'Content-Type': 'application/json'
+  }
 });
 
-// Request interceptor
-api.interceptors.request.use(
+// 요청 인터셉터
+instance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-
     if (token) {
-      config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
   (error) => {
-    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
 
-// Response interceptor
-api.interceptors.response.use(
+// 응답 인터셉터
+instance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.log('401 error detected, logging out...');
       localStorage.removeItem('token');
       window.location.href = '/auth/login';
     }
@@ -38,4 +33,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api; 
+export default instance;

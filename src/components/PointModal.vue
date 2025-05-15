@@ -44,8 +44,8 @@ async function chargePoint() {
     orderId,
     orderName: '포인트 충전',
     customerName,
-    successUrl: 'http://localhost:5173/payment/success',
-    failUrl: 'http://localhost:5173/payment/fail',
+    successUrl: `${import.meta.env.VITE_FRONT_BASE_URL}/payment/success`,
+    failUrl: `${import.meta.env.VITE_FRONT_BASE_URL}/payment/fail`,
   })
 
     // await axios.post('/point', { point: point.value });

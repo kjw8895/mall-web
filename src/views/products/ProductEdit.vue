@@ -7,6 +7,15 @@
         <input v-model="name" required placeholder="상품명을 입력하세요" />
       </div>
       <div class="form-group">
+        <label>상품 설명</label>
+        <textarea 
+          v-model="description" 
+          required 
+          placeholder="상품에 대한 설명을 입력하세요"
+          rows="4"
+        ></textarea>
+      </div>
+      <div class="form-group">
         <label>가격</label>
         <input v-model.number="price" type="number" required placeholder="가격을 입력하세요" />
       </div>
@@ -32,6 +41,7 @@ const props = defineProps<{ product: any }>();
 const emit = defineEmits(['close', 'success']);
 
 const name = ref('');
+const description = ref('');
 const price = ref<number | null>(null);
 const imageFile = ref<File | null>(null);
 const videoFile = ref<File | null>(null);
@@ -41,6 +51,7 @@ const error = ref('');
 watch(() => props.product, (val) => {
   if (val) {
     name.value = val.name;
+    description.value = val.description;
     price.value = val.price;
     imageFile.value = null;
     videoFile.value = null;
@@ -58,12 +69,12 @@ function onVideoChange(e: Event) {
 }
 
 async function handleSubmit() {
-  if (!name.value || !price.value) return;
+  if (!name.value || !price.value || !description.value) return;
   loading.value = true;
   error.value = '';
   try {
     const formData = new FormData();
-    const dto = { name: name.value, price: price.value };
+    const dto = { name: name.value, price: price.value, description: description.value };
     formData.append('request', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
     if (imageFile.value) {
       formData.append('image', imageFile.value);

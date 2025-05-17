@@ -279,16 +279,23 @@ export default defineComponent({
 }
 
 .page-btn {
-  padding: 8px 15px;
-  background-color: #f8f9fa;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  background: var(--main-purple, #6c47ff);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0.5rem;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .page-btn:disabled {
-  opacity: 0.5;
+  background: #e0e0e0;
+  color: #b0b0b0;
   cursor: not-allowed;
+  border: none;
 }
 
 .page-info {

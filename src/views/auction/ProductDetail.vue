@@ -1,6 +1,20 @@
 <template>
   <div class="product-detail-container" v-if="product">
-    <button class="back-list-btn" @click="goToList">목록으로</button>
+    <div class="product-detail-header">
+      <button class="back-list-btn" @click="goToList">목록으로</button>
+      <div class="header-actions">
+        <span class="status-badge" :class="`status-${product.status.code.toLowerCase()}`">
+          {{ product.status.text }}
+        </span>
+        <button
+          v-if="!isMyProduct && product.status.code !== 'COMPLETE'"
+          class="chat-btn-inline"
+          @click="goToChat()"
+        >
+          채팅하기
+        </button>
+      </div>
+    </div>
     <div class="product-detail-card">
       <div class="product-media-group">
         <img v-if="product.imageUrl" :src="product.imageUrl" class="product-detail-img" :alt="product.name" />
@@ -16,16 +30,6 @@
       <div class="product-detail-info">
         <h1 class="product-detail-title">
           {{ product.name }}
-          <span class="status-badge" :class="`status-${product.status.code.toLowerCase()}`">
-            {{ product.status.text }}
-          </span>
-          <button
-            v-if="!isMyProduct && product.status.code !== 'COMPLETE'"
-            class="chat-btn-inline"
-            @click="goToChat()"
-          >
-            채팅하기
-          </button>
         </h1>
         <div class="product-detail-meta">
           <span class="product-detail-price">{{ formatPrice(product.price) }}원</span>
@@ -530,5 +534,16 @@ onMounted(() => {
 .point-info b {
   color: var(--main-purple);
   font-weight: 600;
+}
+.product-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
 }
 </style> 

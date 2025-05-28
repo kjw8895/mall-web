@@ -34,6 +34,7 @@
             </td>
             <td class="action-cell">
               <button v-if="purchase.productType.code === 'AUCTION'" class="action-btn cancel" @click="cancelBid(purchase.id)" :disabled="cancelLoadingId === purchase.id">입찰 취소</button>
+              <button v-if="purchase.productType.code === 'NORMAL' && purchase.status.code === 'PAID'" class="action-btn cancel" @click="cancelPurchase(purchase.id)" :disabled="cancelLoadingId === purchase.id">구매 취소</button>
             </td>
           </tr>
           <tr v-if="purchases.length === 0">
@@ -109,6 +110,18 @@ async function cancelBid(purchaseId: number) {
     fetchPurchases();
   } catch (err) {
     alert('입찰 취소에 실패했습니다.');
+  } finally {
+    cancelLoadingId.value = null;
+  }
+}
+async function cancelPurchase(purchaseId: number) {
+  if (!confirm('정말로 이 구매를 취소하시겠습니까?')) return;
+  cancelLoadingId.value = purchaseId;
+  try {
+    await axios.delete(`/product/purchase/${purchaseId}/normal`);
+    fetchPurchases();
+  } catch (err) {
+    alert('구매 취소에 실패했습니다.');
   } finally {
     cancelLoadingId.value = null;
   }
